@@ -8,9 +8,8 @@ var server = http.createServer(function (req, res) {
   res.writeHead(200, {'Content-Type': 'text/plain'});
 
     var myReadStream = fs.createReadStream(__dirname + "/" + 'readMe.txt', 'utf8') ;
-    var myWriteStream = fs.createWriteStream(__dirname + "/"+ 'writeMe.txt') ;
-    myReadStream.pipe(myWriteStream) ;
-    
+    myReadStream.pipe(res) ;
+
   res.end('Hello World\n');
 });
 
