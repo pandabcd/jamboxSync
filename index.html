@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player"></div>
+    <div id="player2"></div>
+    <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+     
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      var songList = ["https://www.youtube.com/watch?v=8UVNT4wvIGY", "https://www.youtube.com/v/ukjrC6iwhCE",  "https://www.youtube.com/watch?v=x_elT6zkqN0"] ;
+ 
+      var index = 0 ;
+      var connection = true ;
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var server, client;
+      function onYouTubeIframeAPIReady() {
+        server = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: '8UVNT4wvIGY',
+          events: {
+            'onReady': onPlayerReadyServer,
+            'onStateChange': onPlayerStateChangeServer
+          }
+        });
+
+        client = new YT.Player('player2', {
+          height: '399',
+          width: '656',
+          videoId: '8UVNT4wvIGY',
+          events: {
+            'onReady': onPlayerReadyClient,
+            'onStateChange': onPlayerStateChangeClient
+          }
+        });
+      }
+
+      
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReadyServer(event) {
+        event.target.playVideo();
+        var myVar = setInterval( syncClientsWithServers, 5000);
+      }
+
+      function sleep(ms) {
+		  return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+	
+      function syncClientsWithServers(){
+      	console.log(connection) ;
+      	if( !connection){
+      		return ;
+      	}
+      	while (client.getPlayerState == YT.PlayerState.buffering){
+      		sleep(4);
+      	}
+
+
+      	var currentTime = server.getCurrentTime() ;
+      	client.seekTo(currentTime) ;
+
+      	var serverState = server.getPlayerState() ;
+      	
+      	if(serverState==1){
+	      	client.playVideo() ;
+	     }
+	    
+	    if(serverState==2 || serverState==3){
+	      	client.pauseVideo() ;
+	     }
+	    
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChangeServer(event) {
+      	
+      	
+      	if(event.data == YT.PlayerState.PLAYING){
+      		var currentTime = server.getCurrentTime();
+      		console.log("Server playing:current Time: " + currentTime + "\n");
+      		if (connection){
+	      		client.seekTo(currentTime) ;
+	      		client.playVideo() ;
+	      	}
+      	}
+
+      	if(event.data == YT.PlayerState.PAUSED){
+      		console.log("Server state change: paused" + event.data);
+      		if (connection){
+	      		client.pauseVideo() ;
+	      	}
+      	}
+
+      	if(event.data == YT.PlayerState.BUFFERING){
+      		console.log("Server state change: buffering" + event.data);
+      		if(connection){
+      			client.pauseVideo() ;
+      		}
+      	}
+
+      	if(event.data == YT.PlayerState.CUED){
+      		console.log("Server state change: cued " + event.data);
+      		console.log("Server cued");
+      	}
+
+      	// Make this for client side too
+        if (event.data == YT.PlayerState.ENDED){
+        	server.loadVideoByUrl( songList[index+1] + "?version=3" );
+        	console.log(songList[index+1] + "?version=3") ;
+        	
+        	if(connection){
+        		client.loadVideoByUrl(songList[index+1] + "?version=3" ) ;
+        	}
+        	else{
+        		// Else cue song
+        	}
+        	index+=1 ;
+        }
+       
+      }
+      
+      function onPlayerReadyClient(event){
+      		event.target.playVideo() ;
+      }
+
+      function onPlayerStateChangeClient(event) {
+      }
+
+      function disConnect(){
+      	connection = !connection ;
+      	var connectionButton = document.getElementById("connectionButton");
+      	if(connection){
+      		connectionButton.style.background = "green" ;
+      		connectionButton.innerHTML = "Disconnect" ;
+      	}
+      	else{
+      		connectionButton.style.background = "red" ;
+      		connectionButton.innerHTML = "Connect" ;
+      	}
+      }
+
+      function displayFormContents(form){
+      	
+		      	var out = '';
+		    for (var i=0, el; el = form.elements[i]; i++) {
+		        if (el.name) {
+		            out += el.name + ' = ' + el.value + '\n';
+		            // console.log(el.name +el.value) ;
+		            songList.push(el.value) ;
+		        }
+		    }
+		    console.log(songList) ;
+      }
+
+    </script>
+    <button onClick="disConnect()" id="connectionButton" style="background:green;">
+    	Disconnect
+    </button>
+
+    <form>
+		  Song link: <input type='text' name='songname' /><br />
+		 <input type='button' value='Add song' onclick='displayFormContents(this.form);return false;' />
+	 </form>
+  </body>
+</html>
+
+<!-- Returns the state of the player. Possible values are:
+-1 – unstarted
+0 – ended
+1 – playing
+2 – paused
+3 – buffering
+5 – video cued -->
