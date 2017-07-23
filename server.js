@@ -12,7 +12,11 @@ var server = http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
     var myReadStream = fs.createReadStream(__dirname + '/' + 'index.html', 'utf8') ;
     myReadStream.pipe(res) ;
-    // res.end() ;
+  }
+  else if(req.url==='/api'){
+    var ninjas = [ {name : 'subhodeep', level : 'beginner'}, {name : 'nikhil', level: 'pro'}] ;
+    res.writeHead(200, {'Content-Type': 'application/json'}) ;
+    res.end(JSON.stringify(ninjas)) ;
   }
 
   else{
