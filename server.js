@@ -1,49 +1,46 @@
-var http = require('http') ;
-var fs = require('fs') ;
+var express = require('express') ;
+var socket = require('socket.io') ;
 
+// app setup
+var app = express() ;
 
+var server = app.listen(5000,'0.0.0.0', function(){
+  console.log("Listening to port 5000") ;
+})
 
-var server = http.createServer(function (req, res) {
-  console.log('request was made: ' + req.url) ;
+// Static files
+app.use(express.static('public')) ;
+
+// Socket setup
+var io = socket(server) ;
+
+// Change hard coded to programme
+var localHostIP = '192.168.1.7'
+
+io.on('connection', function(socket){
+  var clientIp = socket.request.connection.remoteAddress;
+  var socketId = socket.id ;
   
+  console.log('Made socket connection', socket.id) ;
+  console.log(clientIp) ;
 
-  if(req.url==='/home' || req.url==='/'){
-    console.log(req.url) ;
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    var myReadStream = fs.createReadStream(__dirname + '/' + 'index.html', 'utf8') ;
-    myReadStream.pipe(res) ;
-  }
-  else if(req.url==='/api'){
-    var ninjas = [ {name : 'subhodeep', level : 'beginner'}, {name : 'nikhil', level: 'pro'}] ;
-    res.writeHead(200, {'Content-Type': 'application/json'}) ;
-    res.end(JSON.stringify(ninjas)) ;
+  // Make the client admin if it is from localhost
+  if(clientIp==localHostIP){
+  	console.log("Admin client") ;
+  	io.to(socketId).emit('admin') ;
   }
 
-  else{
-    res.end("hello world") ;
-  }
-
-    
-
-  // res.end('Hello World\n');
-});
+}) ;
 
 
-server.listen(1337, "127.0.0.1") ;
-console.log('Server running at http://127.0.0.1:1337/');
+// Update time after every 'syncTimeInterval' miliseconds
+var syncTimeInterval = 20000 ;
+var myVar = setInterval( syncClientsWithServers, syncTimeInterval);
 
+function syncClientsWithServers(){
+  console.log("I am trying to emit") ;
+  io.sockets.emit('sync', {currentTime: 6, serverState: 1}) ;
+}
 
-
-
-
-
-
-
-
-
-// myReadStream.on('data', function(chunk){
-//     console.log('new chunk received') ;
-//     myWriteStream.write(chunk) ;
-// })
 
 

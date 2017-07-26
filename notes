@@ -1,0 +1,8 @@
+npm init
+To initialise ?
+
+npm install express --save
+Installing express; --save for saving it in dependencies (package.json file)
+
+npm install nodemon --save-dev
+To not restart server everytime (or not commanding node server.js). Not a dependency but for convinience (dev dependancy). 
