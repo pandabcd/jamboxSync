@@ -1,85 +1,81 @@
-// 2. This code loads the IFrame Player API code asynchronously.
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-
-var songList = ["https://www.youtube.com/watch?v=8UVNT4wvIGY", "https://www.youtube.com/v/ukjrC6iwhCE",  "https://www.youtube.com/watch?v=x_elT6zkqN0"] ;
-var index = 0 ;
-var connectToServer = true ;
-var isAdmin = false ;
-
-
-// Connecting to server and stuff
 var socket = io.connect("http://192.168.1.7:5000") ;
-
-socket.on('admin', function(){
-  isAdmin = true ;
-  console.log("I am the admin: " + isAdmin) ;
-})
-
-socket.on('sync', function (data){
-  console.log("I have receieved data") ;
-  console.log(data) ;
-  syncClientsWithServer(data) ;
-}) ;
-
 
 // Function to sync according to playtime and state of player in server
 function syncClientsWithServer(data){
-  var currentTime = data.currentTime ;
-  var serverState = data.serverState ;
-  console.log(connectToServer +" "+ currentTime +" " + serverState) ;
 
+  if(isAdmin){
+    return ;    // Else will skip a beat
+  }
+
+  var currentTime = data.seekTime ;
+  var serverState = data.playerState ;
+  
   if( !connectToServer){
     return ;
   }
 
-  while (client.getPlayerState == YT.PlayerState.buffering){
-    sleep(4);
-  }
-
-  // var currentTime = server.getCurrentTime() ;
-  console.log(currentTime)
-  client.seekTo(currentTime) ;
-
-  var serverState = server.getPlayerState() ;
-  
+  youtubePlayer.seekTo(currentTime) ;
+ 
   if(serverState==1){
-    client.playVideo() ;
+    youtubePlayer.playVideo() ;
  }
 
 if(serverState==2 || serverState==3){
-    client.pauseVideo() ;
+    youtubePlayer.pauseVideo() ;
  }
 
 }
 
+
+
+
+function playNewSong(songId){
+  console.log("playNewSong: " +songId) ;
+  youtubePlayer.loadVideoById(songId);
+}
+
+function requestNewSongPlay(songId){
+  console.log("Requesting server to load new song: " + songId);
+  socket.emit('loadNewSong', {songId: songId}) ;
+}
+
+socket.on('loadNewSong', function(data){
+  var songId = data.songId ;
+  playNewSong(songId) ;
+  console.log("Server requesting to play song: " + songId) ;
+});
+
+
+function addSongToQueue(songId){
+  songList.push(songId) ;
+}
+
+function addSongRequest(form){
+  var songId = youtube_parser(form.elements[0].value) ;
+  console.log("add song request: " + form.elements[0].value);
+  socket.emit('addSong',{songId: songId}) ;
+}
+
+socket.on('addSong', function(data){
+  var songId = data.songId ;
+  addSongToQueue(songId);
+  console.log("Server requesting to add song: " + songId)
+});
+
 // 3. This function creates an <iframe> (and YouTube player)
 //    after the API code downloads.
-var server, client;
+var youtubePlayer ;
 function onYouTubeIframeAPIReady() {
-  server = new YT.Player('player', {
+  youtubePlayer = new YT.Player('player', {
     height: '390',
     width: '640',
-    videoId: '8UVNT4wvIGY',
+    videoId: 'fJ9rUzIMcZQ',
     events: {
       'onReady': onPlayerReadyServer,
       'onStateChange': onPlayerStateChangeServer
     }
   });
 
-  client = new YT.Player('player2', {
-    height: '399',
-    width: '656',
-    videoId: '8UVNT4wvIGY',
-    events: {
-      'onReady': onPlayerReadyClient,
-      'onStateChange': onPlayerStateChangeClient
-    }
-  });
 }
 
 
@@ -101,98 +97,131 @@ function sleep(ms) {
 // 5. The API calls this function when the player's state changes.
 //    The function indicates that when playing a video (state=1),
 //    the player should play for six seconds and then stop.
-var done = false;
+
+// function onPlayerStateChangeServer(event){
+
+// }
+
 function onPlayerStateChangeServer(event) {
-	
-	
-	if(event.data == YT.PlayerState.PLAYING){
-		var currentTime = server.getCurrentTime();
-		console.log("Server playing:current Time: " + currentTime + "\n");
-		if (connectToServer){
-  		client.seekTo(currentTime) ;
-  		client.playVideo() ;
-  	}
-	}
 
-	if(event.data == YT.PlayerState.PAUSED){
-		console.log("Server state change: paused" + event.data);
-		if (connectToServer){
-  		client.pauseVideo() ;
-  	}
-	}
 
-	if(event.data == YT.PlayerState.BUFFERING){
-		console.log("Server state change: buffering" + event.data);
-		if(connectToServer){
-			client.pauseVideo() ;
-		}
-	}
-
-	if(event.data == YT.PlayerState.CUED){
-		console.log("Server state change: cued " + event.data);
-		console.log("Server cued");
-	}
-
-	// Make this for client side too
+  // Make this for client side too
   if (event.data == YT.PlayerState.ENDED){
-  	server.loadVideoByUrl( songList[index+1] + "?version=3" );
-  	console.log(songList[index+1] + "?version=3") ;
-  	
-  	if(connection){
-  		client.loadVideoByUrl(songList[index+1] + "?version=3" ) ;
-  	}
-  	else{
-  		// Else cue song
-  	}
-  	index+=1 ;
+    youtubePlayer.loadVideoById( songList[index] );
+    // console.log(songList[index]) ;
+    
+    if(connectToServer){
+      // Complete song change code
+      youtubePlayer.loadVideoById(songList[index] ) ;
+    }
+    else{
+      // Else cue song
+    }
+
+    index+=1 ;
   }
  
 }
 
-function onPlayerReadyClient(event){
-		event.target.playVideo() ;
+
+function sendStateToServer(){
+  if(!isAdmin){
+    return ;
+  }
+  // console.log("Sending adminState to server") ;
+  socket.emit('adminState', {seekTime: youtubePlayer.getCurrentTime(), playerState: youtubePlayer.getPlayerState()}) ;
 }
-
-function onPlayerStateChangeClient(event) {
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 function disConnect(){
-	connection = !connection ;
-	var connectionButton = document.getElementById("connectionButton");
-	if(connection){
-		connectionButton.style.background = "green" ;
-		connectionButton.innerHTML = "Disconnect" ;
-	}
-	else{
-		connectionButton.style.background = "red" ;
-		connectionButton.innerHTML = "Connect" ;
-	}
+  connectToServer = !connectToServer ;
+  var connectionButton = document.getElementById("connectionButton");
+  if(connectToServer){
+    connectionButton.style.background = "green" ;
+    connectionButton.innerHTML = "Disconnect" ;
+  }
+  else{
+    connectionButton.style.background = "red" ;
+    connectionButton.innerHTML = "Connect" ;
+  }
 }
 
-function displayFormContents(form){
-	
-    	var out = '';
-  for (var i=0, el; el = form.elements[i]; i++) {
-      if (el.name) {
-          out += el.name + ' = ' + el.value + '\n';
-          // console.log(el.name +el.value) ;
-          songList.push(el.value) ;
-      }
-  }
+function addSongToQueue(songId){
+  songList.push(songId) ;
+}
+
+function addSongRequest(form){
+  var songId = youtube_parser(form.elements[0].value) ;
+  console.log("add song request: " + form.elements[0].value);
+  socket.emit('addSong',{songId: songId}) ;
+}
+
+socket.on('addSong', function(data){
+  var songId = data.songId ;
+  addSongToQueue(songId);
+  console.log("Server requesting to add song: " + songId)
+});
+
+function youtube_parser(url){
+    var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+    var match = url.match(regExp);
+    return (match&&match[7].length==11)? match[7] : false;
+}
+
+function playNextSong(){
+
+    requestNewSongPlay(songList[index+1]) ;
+    // youtubePlayer.loadVideoById( songList[index+1]  );
+    console.log("playNextSong: " + index + songList[index+1] ) ;
+    index+=1 ;   
+}
+
+function playPreviousSong(){
+    requestNewSongPlay(songList[index-1]) ;
+    // youtubePlayer.loadVideoById( songList[index-1]  );
+    console.log(songList[index+1]) ;
+    index-=1 ;  
+    if(index==-1){
+      index = 0;
+    }
+}
+
+function printSongList(){
   console.log(songList) ;
 }
+
+// 2. This code loads the IFrame Player API code asynchronously.
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+
+var songList = ["HgzGwKwLmgM", "Bznxx12Ptl0"] ;
+var index = -1 ;
+var connectToServer = true ;
+var isAdmin = false ;
+
+
+// Connecting to server and stuff
+
+socket.on('admin', function(){
+  isAdmin = true ;
+  // console.log("I am the admin: " + isAdmin) ;
+}) ;
+
+socket.on('sync', function (data){
+  // console.log("I have receieved data") ;
+  // console.log(data) ;
+  syncClientsWithServer(data) ;
+}) ;
+
+
+
+
+setInterval( sendStateToServer, 5000);
+
 
 // <!-- Returns the state of the player. Possible values are:
 // -1 – unstarted

@@ -18,29 +18,51 @@ var io = socket(server) ;
 var localHostIP = '192.168.1.7'
 
 io.on('connection', function(socket){
+
   var clientIp = socket.request.connection.remoteAddress;
   var socketId = socket.id ;
   
-  console.log('Made socket connection', socket.id) ;
-  console.log(clientIp) ;
+  // console.log('Made socket connection', socket.id) ;
+  // console.log(clientIp) ;
 
   // Make the client admin if it is from localhost
   if(clientIp==localHostIP){
-  	console.log("Admin client") ;
+  	// console.log("Admin client") ;
   	io.to(socketId).emit('admin') ;
   }
+
+  // Receiving admin state and broadcasting it at the same time
+  socket.on('adminState', function (data){
+	  // console.log("I have receieved data from admin") ;
+	  // console.log(data) ;
+  
+	  io.sockets.emit('sync',data) ;
+	}) ;
+
+  socket.on('addSong', function(data){
+  	console.log("Request for adding song: " + data.songId);
+  	io.sockets.emit('addSong', data) ;
+  });
+
+  socket.on('loadNewSong', function(data){
+  	console.log("Request for loading new song: " + data.songId);
+  	io.sockets.emit('loadNewSong', data) ;
+  }) ;
 
 }) ;
 
 
-// Update time after every 'syncTimeInterval' miliseconds
-var syncTimeInterval = 20000 ;
-var myVar = setInterval( syncClientsWithServers, syncTimeInterval);
 
-function syncClientsWithServers(){
-  console.log("I am trying to emit") ;
-  io.sockets.emit('sync', {currentTime: 6, serverState: 1}) ;
-}
+
+
+// Update time after every 'syncTimeInterval' miliseconds
+// var syncTimeInterval = 20000 ;
+// var myVar = setInterval( syncClientsWithServers, syncTimeInterval);
+
+// function syncClientsWithServers(){
+//   console.log("I am trying to emit") ;
+//   io.sockets.emit('sync', {seekTime: 6, playerState: 1}) ;
+// }
 
 
 

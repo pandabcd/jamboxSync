@@ -11,7 +11,10 @@
     </button>
     <form>
 		  Song link: <input type='text' name='songname' placeholder="Tunak tunak tun" /><br />
-		 <input type='button' value='Add song' onclick='displayFormContents(this.form);return false;' />
+		 <input type='button' value='Add song' onclick='addSongRequest(this.form);return false;' />
+         <input type='button' value='Next Song' onclick='playNextSong();return false;' />
+         <input type='button' value='Previous Song' onclick='playPreviousSong();return false;' />
+         <input type='button' value='Song list' onclick='printSongList();return false;' />
 	 </form>
   </body>
 </html>
