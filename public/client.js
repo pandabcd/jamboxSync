@@ -1,4 +1,4 @@
-var socket = io.connect("http://192.168.1.7:5000") ;
+var socket = io.connect("http://192.168.1.7:4000") ;
 
 // Function to sync according to playtime and state of player in server
 function syncClientsWithServer(data){
@@ -36,7 +36,12 @@ function playNewSong(songId){
 
 function requestNewSongPlay(songId){
   console.log("Requesting server to load new song: " + songId);
-  socket.emit('loadNewSong', {songId: songId}) ;
+  if(isAdmin){
+    socket.emit('loadNewSong', {songId: songId}) ;
+  }
+  else{
+    console.log("You are not an admin") ;
+  }
 }
 
 socket.on('loadNewSong', function(data){
@@ -46,12 +51,17 @@ socket.on('loadNewSong', function(data){
 });
 
 
+
 function addSongToQueue(songId){
   songList.push(songId) ;
 }
 
 function addSongRequest(form){
   var songId = youtube_parser(form.elements[0].value) ;
+  if (songId==false){
+    console.log("Not a youtube link or unable to process") ;
+    return ;
+  }
   console.log("add song request: " + form.elements[0].value);
   socket.emit('addSong',{songId: songId}) ;
 }
@@ -59,8 +69,9 @@ function addSongRequest(form){
 socket.on('addSong', function(data){
   var songId = data.songId ;
   addSongToQueue(songId);
-  console.log("Server requesting to add song: " + songId)
+  console.log("Server requesting to add song: " + songId) ;
 });
+
 
 // 3. This function creates an <iframe> (and YouTube player)
 //    after the API code downloads.
@@ -107,18 +118,10 @@ function onPlayerStateChangeServer(event) {
 
   // Make this for client side too
   if (event.data == YT.PlayerState.ENDED){
-    youtubePlayer.loadVideoById( songList[index] );
-    // console.log(songList[index]) ;
-    
-    if(connectToServer){
-      // Complete song change code
-      youtubePlayer.loadVideoById(songList[index] ) ;
-    }
-    else{
-      // Else cue song
-    }
-
-    index+=1 ;
+    if(isAdmin){
+      requestNewSongPlay(songList[index+1]) ;
+      index+=1;
+  }
   }
  
 }
@@ -146,21 +149,21 @@ function disConnect(){
   }
 }
 
-function addSongToQueue(songId){
-  songList.push(songId) ;
-}
+// function addSongToQueue(songId){
+//   songList.push(songId) ;
+// }
 
-function addSongRequest(form){
-  var songId = youtube_parser(form.elements[0].value) ;
-  console.log("add song request: " + form.elements[0].value);
-  socket.emit('addSong',{songId: songId}) ;
-}
+// function addSongRequest(form){
+//   var songId = youtube_parser(form.elements[0].value) ;
+//   console.log("add song request: " + form.elements[0].value);
+//   socket.emit('addSong',{songId: songId}) ;
+// }
 
-socket.on('addSong', function(data){
-  var songId = data.songId ;
-  addSongToQueue(songId);
-  console.log("Server requesting to add song: " + songId)
-});
+// socket.on('addSong', function(data){
+//   var songId = data.songId ;
+//   addSongToQueue(songId);
+//   console.log("Server requesting to add song: " + songId)
+// });
 
 function youtube_parser(url){
     var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
@@ -172,7 +175,7 @@ function playNextSong(){
 
     requestNewSongPlay(songList[index+1]) ;
     // youtubePlayer.loadVideoById( songList[index+1]  );
-    console.log("playNextSong: " + index + songList[index+1] ) ;
+    console.log("playNextSong: " + songList[index+1] ) ;
     index+=1 ;   
 }
 
