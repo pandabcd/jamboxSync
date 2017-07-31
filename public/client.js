@@ -1,21 +1,31 @@
-var socket = io.connect("http://192.168.1.7:4000") ;
+var socket = io.connect("http://192.168.2.35:4000") ;
 
 // Function to sync according to playtime and state of player in server
 function syncClientsWithServer(data){
 
-  if(isAdmin){
-    return ;    // Else will skip a beat
+  console.log(connectToServer) ;
+  if(isAdmin || (!connectToServer)){
+    console.log("server time and current time ADMIN: " + data.seekTime + " " + youtubePlayer.getCurrentTime()) ;
+     return ;    // Else will skip a beat
   }
+  else{
+    console.log("server time and current time: " + data.seekTime + " " + youtubePlayer.getCurrentTime()) ;
+  }
+
 
   var currentTime = data.seekTime ;
   var serverState = data.playerState ;
   
-  if( !connectToServer){
-    return ;
-  }
+  var packetDelay = 0.2 
+  var playerTime = youtubePlayer.getCurrentTime() ;
+  
 
-  youtubePlayer.seekTo(currentTime) ;
- 
+
+  // console.log("server time and current time: " + data.seekTime + " " + youtubePlayer.getCurrentTime());
+  
+  console.log("Server and player state: " + serverState + youtubePlayer.getPlayerState()) ;
+  youtubePlayer.seekTo(currentTime+packetDelay) ;
+   
   if(serverState==1){
     youtubePlayer.playVideo() ;
  }
@@ -58,10 +68,17 @@ function addSongToQueue(songId){
 
 function addSongRequest(form){
   var songId = youtube_parser(form.elements[0].value) ;
+
+  var songInputBox = document.getElementById("formAddSong");
+  songInputBox.innerHTML = " " ;
+
   if (songId==false){
-    console.log("Not a youtube link or unable to process") ;
+    alert("Not a youtube link or unable to process") ;
     return ;
   }
+
+
+  alert("Song Added") ; 
   console.log("add song request: " + form.elements[0].value);
   socket.emit('addSong',{songId: songId}) ;
 }
@@ -137,8 +154,8 @@ function sendStateToServer(){
 
 
 function disConnect(){
-  connectToServer = !connectToServer ;
   var connectionButton = document.getElementById("connectionButton");
+  connectToServer = !connectToServer ;
   if(connectToServer){
     connectionButton.style.background = "green" ;
     connectionButton.innerHTML = "Disconnect" ;
@@ -147,6 +164,7 @@ function disConnect(){
     connectionButton.style.background = "red" ;
     connectionButton.innerHTML = "Connect" ;
   }
+  console.log(connectToServer) ;
 }
 
 // function addSongToQueue(songId){
@@ -201,8 +219,8 @@ var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 
-var songList = ["HgzGwKwLmgM", "Bznxx12Ptl0"] ;
-var index = -1 ;
+var songList = ["fJ9rUzIMcZQ", "HgzGwKwLmgM", "Bznxx12Ptl0"] ;
+var index = 0 ;
 var connectToServer = true ;
 var isAdmin = false ;
 
@@ -223,7 +241,7 @@ socket.on('sync', function (data){
 
 
 
-setInterval( sendStateToServer, 5000);
+setInterval( sendStateToServer, 20000);
 
 
 // <!-- Returns the state of the player. Possible values are:

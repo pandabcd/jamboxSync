@@ -15,13 +15,13 @@ app.use(express.static('public')) ;
 var io = socket(server) ;
 
 // Change hard coded to programme
-var localHostIP = '192.168.1.7'
+var localHostIP = '192.168.2.35'
 
 io.on('connection', function(socket){
 
   var clientIp = socket.request.connection.remoteAddress;
   var socketId = socket.id ;
-  
+ console.log("Client and local host Ips: " + clientIp+" "+localHostIP) ;
   // console.log('Made socket connection', socket.id) ;
   // console.log(clientIp) ;
 
@@ -36,7 +36,7 @@ io.on('connection', function(socket){
 	  // console.log("I have receieved data from admin") ;
 	  // console.log(data) ;
   
-	  io.sockets.emit('sync',data) ;
+	  io.sockets.emit('sync', data) ;
 	}) ;
 
   socket.on('addSong', function(data){
