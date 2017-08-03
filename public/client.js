@@ -1,4 +1,4 @@
-var socket = io.connect("http://192.168.2.35:4000") ;
+var socket = io.connect("http://192.168.2.35:5000") ;
 
 // Function to sync according to playtime and state of player in server
 function syncClientsWithServer(data){

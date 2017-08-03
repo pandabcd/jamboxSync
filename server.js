@@ -4,8 +4,8 @@ var socket = require('socket.io') ;
 // app setup
 var app = express() ;
 
-var server = app.listen(4000,'0.0.0.0', function(){
-  console.log("Listening to port 4000") ;
+var server = app.listen(5000,'0.0.0.0', function(){
+  console.log("Listening to port 5000") ;
 })
 
 // Static files
