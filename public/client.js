@@ -77,7 +77,7 @@ function addSongRequest(form){
     return ;
   }
 
-
+  
   alert("Song Added") ; 
   console.log("add song request: " + form.elements[0].value);
   socket.emit('addSong',{songId: songId}) ;
@@ -86,6 +86,7 @@ function addSongRequest(form){
 socket.on('addSong', function(data){
   var songId = data.songId ;
   addSongToQueue(songId);
+  updateThumbnails(index+1) ;
   console.log("Server requesting to add song: " + songId) ;
 });
 
@@ -194,7 +195,8 @@ function playNextSong(){
     requestNewSongPlay(songList[index+1]) ;
     // youtubePlayer.loadVideoById( songList[index+1]  );
     console.log("playNextSong: " + songList[index+1] ) ;
-    index+=1 ;   
+    index+=1 ; 
+    updateThumbnails(index+1);  
 }
 
 function playPreviousSong(){
@@ -205,10 +207,28 @@ function playPreviousSong(){
     if(index==-1){
       index = 0;
     }
+    updateThumbnails(index+1);  
 }
 
 function printSongList(){
   console.log(songList) ;
+}
+
+function getThumbnailFromId(songId){
+  return "https://img.youtube.com/vi/" + songId + "/0.jpg"
+}
+
+function onDomLoad(){
+  updateThumbnails(1) ;
+}
+
+function updateThumbnails(index){
+  console.log("Updating thumbnails") ;
+  for(var i=index;i<index+numberOfThumbnails;i++){
+    console.log(i-index+" "+songList[i]);
+    var thumbnail = document.getElementById("thumbnail"+(i-index+1) );
+    thumbnail.src=getThumbnailFromId(songList[i]);
+  }
 }
 
 // 2. This code loads the IFrame Player API code asynchronously.
@@ -223,6 +243,13 @@ var songList = ["fJ9rUzIMcZQ", "HgzGwKwLmgM", "Bznxx12Ptl0"] ;
 var index = 0 ;
 var connectToServer = true ;
 var isAdmin = false ;
+var numberOfThumbnails = 4;
+
+
+
+window.addEventListener('DOMContentLoaded',function(event){
+    onDomLoad() ;
+});
 
 
 // Connecting to server and stuff
