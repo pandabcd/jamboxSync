@@ -15,7 +15,7 @@ app.use(express.static('public')) ;
 var io = socket(server) ;
 
 // Change hard coded to programme
-var localHostIP = '192.168.2.35'
+var localHostIP = '192.168.1.7'
 
 io.on('connection', function(socket){
 

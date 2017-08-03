@@ -1,4 +1,4 @@
-var socket = io.connect("http://192.168.2.35:5000") ;
+var socket = io.connect("http://192.168.1.7:5000") ;
 
 // Function to sync according to playtime and state of player in server
 function syncClientsWithServer(data){
@@ -15,8 +15,11 @@ function syncClientsWithServer(data){
 
   var currentTime = data.seekTime ;
   var serverState = data.playerState ;
+  var sendTime = data.sendTime ;
+  console.log("gihihihihi");
+  console.log("sendTime"+sendTime);
   
-  var packetDelay = 0.2 
+  // var packetDelay = 0.2 
   var playerTime = youtubePlayer.getCurrentTime() ;
   
 
@@ -135,6 +138,9 @@ function onPlayerStateChangeServer(event) {
 
 
   // Make this for client side too
+  if(isAdmin){
+    sendStateToServer();
+  }
   if (event.data == YT.PlayerState.ENDED){
     if(isAdmin){
       requestNewSongPlay(songList[index+1]) ;
@@ -146,11 +152,14 @@ function onPlayerStateChangeServer(event) {
 
 
 function sendStateToServer(){
+  var date = new Date();
+  var time = date.getTime() ;
+  console.log("TIme and data" + time+date);
   if(!isAdmin){
     return ;
   }
   // console.log("Sending adminState to server") ;
-  socket.emit('adminState', {seekTime: youtubePlayer.getCurrentTime(), playerState: youtubePlayer.getPlayerState()}) ;
+  socket.emit('adminState', {seekTime: youtubePlayer.getCurrentTime(), playerState: youtubePlayer.getPlayerState(), sendTime: time}) ;
 }
 
 
@@ -158,12 +167,12 @@ function disConnect(){
   var connectionButton = document.getElementById("connectionButton");
   connectToServer = !connectToServer ;
   if(connectToServer){
-    connectionButton.style.background = "green" ;
-    connectionButton.innerHTML = "Disconnect" ;
+    connectionButton.style.background = "#003300" ;
+    connectionButton.innerHTML = "Connected :)" ;
   }
   else{
-    connectionButton.style.background = "red" ;
-    connectionButton.innerHTML = "Connect" ;
+    connectionButton.style.background = "#330000" ;
+    connectionButton.innerHTML = "Disconnected :(" ;
   }
   console.log(connectToServer) ;
 }
@@ -244,7 +253,7 @@ var index = 0 ;
 var connectToServer = true ;
 var isAdmin = false ;
 var numberOfThumbnails = 4;
-
+var rtt = 0;
 
 
 window.addEventListener('DOMContentLoaded',function(event){
