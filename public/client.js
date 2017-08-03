@@ -95,9 +95,9 @@ socket.on('addSong', function(data){
 var youtubePlayer ;
 function onYouTubeIframeAPIReady() {
   youtubePlayer = new YT.Player('player', {
-    height: '390',
-    width: '640',
-    videoId: 'fJ9rUzIMcZQ',
+    // height: '390',
+    // width: '640',
+    // videoId: 'fJ9rUzIMcZQ',
     events: {
       'onReady': onPlayerReadyServer,
       'onStateChange': onPlayerStateChangeServer

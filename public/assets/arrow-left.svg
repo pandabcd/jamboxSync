@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="9px" height="15px" viewBox="0 0 9 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 45.2 (43514) - http://www.bohemiancoding.com/sketch -->
+    <title>arrow-right</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop-HD" transform="translate(-1116.000000, -963.000000)" fill="#585858">
+            <g id="arrows" transform="translate(1139.000000, 970.500000) scale(-1, 1) translate(-1139.000000, -970.500000) translate(1116.000000, 963.000000)">
+                <path d="M38.0907,14.59375 C37.8987,14.59375 37.7067,14.52075 37.5607,14.37375 C37.2677,14.08075 37.2677,13.60675 37.5607,13.31375 L43.5767,7.29675 L37.5607,1.28075 C37.2677,0.98775 37.2677,0.51275 37.5607,0.21975 C37.8537,-0.07325 38.3277,-0.07325 38.6207,0.21975 L45.6977,7.29675 L38.6207,14.37375 C38.4747,14.52075 38.2827,14.59375 38.0907,14.59375" id="arrow-right"></path>
+            </g>
+        </g>
+    </g>
+</svg>

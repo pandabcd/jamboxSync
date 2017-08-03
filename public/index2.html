@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player"></div>
+    <div id="player2"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js" type="text/javascript"></script>
+    <script type="text/javascript" src="/client.js"></script>
+    <button onClick="disConnect()" id="connectionButton" style="background:green;">
+    	Disconnect
+    </button>
+    <form>
+		  Song link: <input id="formAddSong" type='text' name='songname' placeholder="Tunak tunak tun" /><br />
+		 <input type='button' value='Add song' onclick='addSongRequest(this.form);return false;'  />
+         <input type='button' value='Next Song' onclick='playNextSong();return false;' />
+         <input type='button' value='Previous Song' onclick='playPreviousSong();return false;' />
+         <input type='button' value='Song list' onclick='printSongList();return false;' />
+	 </form>
+     
+     
+  </body>
+</html>
+

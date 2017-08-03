@@ -1,0 +1,94 @@
+body {
+    background-color: #333333;
+}
+
+.top{
+	background-color: #181818;
+	height: 100px;
+	width: 090%;
+	border: 2px solid green;
+}
+
+.jamboxLogo{
+	/*margin-top: 100px;*/
+    /*margin-bottom: 100px;*/
+    /*margin-right: 150px;*/
+    margin-left: 7%;
+
+	border: 0px solid green;
+	padding: 10px 24px;
+	width:100px;
+	height:15%;
+	/*vertical-align: middle;*/
+}
+
+.inputForm{
+	/*margin-top: 100px;*/
+    /*margin-bottom: 100px;*/
+    /*margin-right: 150px;*/
+    /*margin-left: 80px;*/
+
+    
+    color: #9B9B9B ;
+	background-color: #4A4A4A;
+	border: 0px solid green;
+    border-radius: 2px;
+    box-shadow: 1px 1px 0.5px #888888;
+	height: 50% ;
+	width: 30% ;
+	padding: 10px 24px;
+	vertical-align: middle;
+}
+
+.button{
+	/*margin-top: 100px;*/
+    /*margin-bottom: 100px;*/
+    /*margin-right: 10%;*/
+    /*margin-left: 80px;*/
+    box-shadow: 1px 1px 0.5px #595959;
+	background-color: #000000;
+	border: 0px solid green; /* Green border */
+    border-radius: 2px;
+    padding: 10px 24px; /* Some padding */
+    /*cursor: pointer;  Pointer/hand icon */
+    /*color: white;  White text */
+    /*height: 20px*/
+    /*float: left; /**/
+}
+
+.youtubeVideo{
+	/*margin-top: 100px;*/
+    /*margin-bottom: 100px;*/
+    /*margin-right: 10%;*/
+    /*margin-left: 80px;*/
+    height: 600px ;
+	width: 65.2% ;
+
+}
+
+.functionButton{
+	display: inline-block;
+	width: 114px ;
+	height: 40px ;
+	border-radius: 2px;
+}
+
+.functionButton:hover{
+	background-color: green;
+	/*background-image: url("./assets/NEXT_Copy2.svg");*/
+}
+
+.listButton{
+	box-shadow: 1px 1px 0.5px #595959;
+	background-color: #000000;
+	border: 2px solid green; /* Green border */
+    border-radius: 2px;
+    padding: 10px 24px;
+    height: 14.6px;
+    width: 0.7%;
+}
+
+.youtubeThumbnail{
+	height: 124px;
+	width: 212px ;
+}
