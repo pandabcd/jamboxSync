@@ -15,7 +15,7 @@ app.use(express.static('public')) ;
 var io = socket(server) ;
 
 // Change hard coded to programme
-var localHostIP = '192.168.1.7'
+var localHostIP = '192.168.2.35'
 
 io.on('connection', function(socket){
 
@@ -33,9 +33,7 @@ io.on('connection', function(socket){
 
   // Receiving admin state and broadcasting it at the same time
   socket.on('adminState', function (data){
-	  // console.log("I have receieved data from admin") ;
-	  // console.log(data) ;
-  
+    // console.log(data) ;
 	  io.sockets.emit('sync', data) ;
 	}) ;
 
