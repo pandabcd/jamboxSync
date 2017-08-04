@@ -6,7 +6,7 @@ function syncClientsWithServer(data){
   console.log(connectToServer) ;
   if(isAdmin || (!connectToServer)){
     console.log("server time and current time ADMIN: " + data.seekTime + " " + youtubePlayer.getCurrentTime()) ;
-     return ;    // Else will skip a beat
+     // return ;    // Else will skip a beat
   }
   else{
     console.log("server time and current time: " + data.seekTime + " " + youtubePlayer.getCurrentTime()) ;
@@ -15,13 +15,18 @@ function syncClientsWithServer(data){
 
   var currentTime = data.seekTime ;
   var serverState = data.playerState ;
+  
   var sendTime = data.sendTime ;
   console.log("gihihihihi");
   console.log("sendTime"+sendTime);
   
-  var packetDelay = 0 
+  var packetDelay = 0.3
   var playerTime = youtubePlayer.getCurrentTime() ;
   
+  if(playerTime- currentTime< packetDelay){
+    console.log("Already in sync with server") ;
+    return ;
+  }
 
 
   // console.log("server time and current time: " + data.seekTime + " " + youtubePlayer.getCurrentTime());
@@ -327,7 +332,7 @@ socket.on('sync', function (data){
 
 
 
-setInterval( sendStateToServer, 10000);
+setInterval( sendStateToServer, 5000);
 
 
 // <!-- Returns the state of the player. Possible values are:
