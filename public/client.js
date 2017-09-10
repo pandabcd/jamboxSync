@@ -1,4 +1,4 @@
-var socket = io.connect("http://192.168.1.7:5000") ;
+var socket = io.connect("http://192.168.43.202:4000") ;
 
 // Function to sync according to playtime and state of player in server
 function syncClientsWithServer(data){
@@ -19,7 +19,7 @@ function syncClientsWithServer(data){
   console.log("gihihihihi");
   console.log("sendTime"+sendTime);
   
-  // var packetDelay = 0.2 
+  var packetDelay = data.clientPing; 
   var playerTime = youtubePlayer.getCurrentTime() ;
   
 

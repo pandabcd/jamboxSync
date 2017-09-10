@@ -1,11 +1,13 @@
 var express = require('express') ;
 var socket = require('socket.io') ;
+var tcpp = require('tcp-ping');
+
 
 // app setup
 var app = express() ;
 
-var server = app.listen(5000,'0.0.0.0', function(){
-  console.log("Listening to port 5000") ;
+var server = app.listen(4000,'0.0.0.0', function(){
+  console.log("Listening to port 4000") ;
 })
 
 // Static files
@@ -15,9 +17,28 @@ app.use(express.static('public')) ;
 var io = socket(server) ;
 
 // Change hard coded to programme
-var localHostIP = '192.168.1.7'
+var localHostIP = '192.168.43.202'
+
+class clientPingPair{
+  constructor(clientIp, ping){
+    this.clientIp = clientIp;
+    this.ping = ping;
+  }
+}
+
+var clientPing = 0;
+
+function pingClient(clientIp){
+  tcpp.ping({ address: clientIp, port:4000,  attempts:100 }, function(err, data) {
+      clientPing = data.avg;
+  });
+  return clientPing;
+}
+
 
 io.on('connection', function(socket){
+
+
 
   var clientIp = socket.request.connection.remoteAddress;
   var socketId = socket.id ;
@@ -33,9 +54,10 @@ io.on('connection', function(socket){
 
   // Receiving admin state and broadcasting it at the same time
   socket.on('adminState', function (data){
-	  // console.log("I have receieved data from admin") ;
-	  // console.log(data) ;
-  
+
+
+    data.ping = pingClient(clientIp);
+    console.log(data);
 	  io.sockets.emit('sync', data) ;
 	}) ;
 
