@@ -17,6 +17,7 @@ app.use(express.static('public')) ;
 var io = socket(server) ;
 
 // Change hard coded to programme
+<<<<<<< HEAD
 var localHostIP = '192.168.43.202'
 
 class clientPingPair{
@@ -35,6 +36,9 @@ function pingClient(clientIp){
   return clientPing;
 }
 
+=======
+var localHostIP = '192.168.2.35'
+>>>>>>> de2402e30cb10d4cfd319657ebe981f0dcfcd465
 
 io.on('connection', function(socket){
 
@@ -54,10 +58,14 @@ io.on('connection', function(socket){
 
   // Receiving admin state and broadcasting it at the same time
   socket.on('adminState', function (data){
+<<<<<<< HEAD
 
 
     data.ping = pingClient(clientIp);
     console.log(data);
+=======
+    // console.log(data) ;
+>>>>>>> de2402e30cb10d4cfd319657ebe981f0dcfcd465
 	  io.sockets.emit('sync', data) ;
 	}) ;
 

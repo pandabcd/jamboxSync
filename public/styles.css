@@ -83,7 +83,7 @@ body {
 	width: 114px ;
 	height: 40px ;
 	border-radius: 3px;
-	background-color: #000000;
+	background-color: #333333;
 	box-shadow: 0 20px 20px 0 rgba(0,0,0,0.50);
 	padding: 0px;
 	border: 0px;
@@ -108,4 +108,8 @@ body {
 	height: 124px;
 	width: 212px ;
 	box-shadow: 0 20px 20px 0 rgba(0,0,0,0.50);
+}
+
+.notes{
+	color: #ffffff;
 }

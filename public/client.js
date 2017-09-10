@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 var socket = io.connect("http://192.168.43.202:4000") ;
+=======
+var socket = io.connect("http://192.168.2.35:5000") ;
+>>>>>>> de2402e30cb10d4cfd319657ebe981f0dcfcd465
 
 // Function to sync according to playtime and state of player in server
 function syncClientsWithServer(data){
@@ -6,7 +10,7 @@ function syncClientsWithServer(data){
   console.log(connectToServer) ;
   if(isAdmin || (!connectToServer)){
     console.log("server time and current time ADMIN: " + data.seekTime + " " + youtubePlayer.getCurrentTime()) ;
-     return ;    // Else will skip a beat
+     // return ;    // Else will skip a beat
   }
   else{
     console.log("server time and current time: " + data.seekTime + " " + youtubePlayer.getCurrentTime()) ;
@@ -15,13 +19,22 @@ function syncClientsWithServer(data){
 
   var currentTime = data.seekTime ;
   var serverState = data.playerState ;
+  
   var sendTime = data.sendTime ;
   console.log("gihihihihi");
   console.log("sendTime"+sendTime);
   
+<<<<<<< HEAD
   var packetDelay = data.clientPing; 
+=======
+  var packetDelay = 0.3
+>>>>>>> de2402e30cb10d4cfd319657ebe981f0dcfcd465
   var playerTime = youtubePlayer.getCurrentTime() ;
   
+  if(playerTime- currentTime< packetDelay){
+    console.log("Already in sync with server") ;
+    return ;
+  }
 
 
   // console.log("server time and current time: " + data.seekTime + " " + youtubePlayer.getCurrentTime());
@@ -42,27 +55,47 @@ if(serverState==2 || serverState==3){
 
 
 
-function playNewSong(songId){
-  console.log("playNewSong: " +songId) ;
+function playNewSong(songId, songList){
+  // console.log("playNewSong: " +songId) ;
   youtubePlayer.loadVideoById(songId);
+  // console.log("Update thumbnail"+songList);
+  // updateThumbnails(songIndex+1);
+  updateThumbnailsByList(songList);
 }
 
 function requestNewSongPlay(songId){
-  console.log("Requesting server to load new song: " + songId);
+  // console.log("Requesting server to load new song: " + songId);
+
   if(isAdmin){
-    socket.emit('loadNewSong', {songId: songId}) ;
+    // I know this is very poor
+    if(songId==songList[index+1]){
+      // console.log("hi");
+      socket.emit('loadNewSong', {songId: songId, songList:songList.slice(index+2,index+2+numberOfThumbnails)}) ;
+    }
+    else{
+      socket.emit('loadNewSong', {songId: songId, songList:songList.slice(index,index+numberOfThumbnails)}) ;
+    }
   }
   else{
-    console.log("You are not an admin") ;
+    alert("You are not an admin") ;
   }
 }
 
 socket.on('loadNewSong', function(data){
   var songId = data.songId ;
-  playNewSong(songId) ;
-  console.log("Server requesting to play song: " + songId) ;
+  var songList = data.songList ;
+  // console.log("Server requesting to play song: " + songId+" "+songList) ;
+  playNewSong(songId, songList) ;
+  
 });
 
+function updateThumbnailsByList(songList){
+  for(var i=0;i<numberOfThumbnails;i++){
+    // console.log(i-index+" "+songList[i]);
+    var thumbnail = document.getElementById("thumbnail"+(i+1) );
+    thumbnail.src=getThumbnailFromId(songList[i]);
+  }
+}
 
 
 function addSongToQueue(songId){
@@ -89,7 +122,7 @@ function addSongRequest(form){
 socket.on('addSong', function(data){
   var songId = data.songId ;
   addSongToQueue(songId);
-  updateThumbnails(index+1) ;
+  // updateThumbnails(index+1) ;
   console.log("Server requesting to add song: " + songId) ;
 });
 
@@ -101,13 +134,14 @@ function onYouTubeIframeAPIReady() {
   youtubePlayer = new YT.Player('player', {
     // height: '390',
     // width: '640',
-    // videoId: 'fJ9rUzIMcZQ',
+    videoId: songList[0],
     events: {
       'onReady': onPlayerReadyServer,
       'onStateChange': onPlayerStateChangeServer
     }
   });
 
+  // askServerForSync() ;
 }
 
 
@@ -154,7 +188,7 @@ function onPlayerStateChangeServer(event) {
 function sendStateToServer(){
   var date = new Date();
   var time = date.getTime() ;
-  console.log("TIme and data" + time+date);
+  // console.log("TIme and data" + time+date);
   if(!isAdmin){
     return ;
   }
@@ -167,11 +201,11 @@ function disConnect(){
   var connectionButton = document.getElementById("connectionButton");
   connectToServer = !connectToServer ;
   if(connectToServer){
-    connectionButton.style.background = "#003300" ;
+    connectionButton.style.background = "#006600" ;
     connectionButton.innerHTML = "Connected :)" ;
   }
   else{
-    connectionButton.style.background = "#330000" ;
+    connectionButton.style.background = "#660000" ;
     connectionButton.innerHTML = "Disconnected :(" ;
   }
   console.log(connectToServer) ;
@@ -232,12 +266,41 @@ function onDomLoad(){
 }
 
 function updateThumbnails(index){
-  console.log("Updating thumbnails") ;
+  // console.log("Updating thumbnails") ;
   for(var i=index;i<index+numberOfThumbnails;i++){
-    console.log(i-index+" "+songList[i]);
+    // console.log(i-index+" "+songList[i]);
     var thumbnail = document.getElementById("thumbnail"+(i-index+1) );
     thumbnail.src=getThumbnailFromId(songList[i]);
   }
+}
+
+function showNotes(){
+  console.log("Button clicked;");
+
+  var noteButton = document.getElementById("notes");
+  
+  var para1 = document.createElement('P') ;
+  var note1 = document.createTextNode("If you are connecting after the server has started, please wait for the next song to get synced with server. Till then, enjoy 'Bohemian Rhapsody' ");
+  
+  // var para2 = document.createElement('P') ;
+  // var note2 =  document.createTextNode("Website Developed by : Subhodeep Maji ") ;
+
+  // var para3 = document.createElement('P') ;
+  // var note3 = document.createTextNode(" Designed by : Vinish Kumar") ;
+
+  para1.className += "notes" ;
+  // para2.className += "notes" ;
+  // para3.className += "notes" ;
+ 
+  para1.appendChild(note1);
+  // para2.appendChild(note2);
+  // para3.appendChild(note3);
+  
+
+  noteButton.appendChild(para1);
+  // noteButton.appendChild(para2);
+  // noteButton.appendChild(para3);
+
 }
 
 // 2. This code loads the IFrame Player API code asynchronously.
@@ -277,7 +340,7 @@ socket.on('sync', function (data){
 
 
 
-setInterval( sendStateToServer, 20000);
+setInterval( sendStateToServer, 5000);
 
 
 // <!-- Returns the state of the player. Possible values are:
